@@ -1,0 +1,34 @@
+version: "3.9"
+
+# ScalerKart CTF — student distribution
+# Usage:
+#   1. Copy .env.example to .env and fill in STUDENT_ID
+#   2. docker compose pull && docker compose up
+#   Open http://localhost:3000  (or http://scalerkart.local:3000 with Burp proxy)
+
+
+services:
+  web:
+    image: sanjusec/app:latest
+    platform: linux/amd64
+    ports:
+      - "3000:5000"
+    env_file: .env
+    environment:
+      - BOT_TOKEN=bot-secret-change-me
+    volumes:
+      - app_data:/app/data
+    restart: unless-stopped
+  bot:
+    image: sanjusec/bot:latest
+    platform: linux/amd64
+    environment:
+      - APP_URL=http://web:5000
+      - BOT_TOKEN=bot-secret-change-me
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - web
+    restart: unless-stopped
+volumes:
+  app_data:
